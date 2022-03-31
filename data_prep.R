@@ -65,7 +65,19 @@ if(RE_RUN_IMPUTATION){
   load('../Imputed_Data_kemri.RData')
 }
 
-
+gg_names_char = c('hbb_rs334',
+                  'frem3_rs186873296',
+                  'abo_rs8176719',
+                  'atp2b4_rs1541255',
+                  'g6pd_202',
+                  'cd40lg_rs3092945',
+                  'rps6kl1_rs3742785',
+                  'loc727982_rs1371478',
+                  'arl14_rs75731597',
+                  'lphn2_rs72933304',
+                  'il10_rs1800890',
+                  'cand1_rs10459266',
+                  'gnas_rs8386')
 
 gg_names = c('hbb_rs334_num',
              'hba1_2',
@@ -87,7 +99,7 @@ length(gg_names)
 var_names = c('log_parasites', 'log_hrp2',
               'log_platelet','log_wbc',
               'hb', 'ethnic')
-kemri_case_data = kemri_case_data[, c(var_names, gg_names)]
+kemri_case_data = kemri_case_data[, c(var_names, gg_names, gg_names_char)]
 kemri_case_data$ethnic = as.factor(kemri_case_data$ethnic)
 
 gg_name_main = c('hbb_rs334_num',
