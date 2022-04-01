@@ -60,6 +60,14 @@ Compute hrp2/parasite ratio (in units of ng/parasite)
 ## [13] "cand1_rs10459266_num"    "gnas_rs8386_num"
 ```
 
+
+## Genotype frequencies
+
+
+
+
+
+
 ## Case-only association study
 
 
@@ -525,19 +533,19 @@ data tilting case-control
 
 ```
 ## Doing hbb_rs334_num
-## log10 weighted p-value is -31.0570968277178
+## log10 weighted p-value is -31.0669337786228
 ## log10 non-weighted p-value is -37.7818996998084
 ## Doing hba1_2
-## log10 weighted p-value is -5.52379661819069
+## log10 weighted p-value is -5.52208184137899
 ## log10 non-weighted p-value is -4.16336276635852
 ## Doing frem3_rs186873296_num
-## log10 weighted p-value is -12.117146175683
+## log10 weighted p-value is -12.1127881194502
 ## log10 non-weighted p-value is -10.9532600611397
 ## Doing abo_rs8176719_num
-## log10 weighted p-value is -12.284837801354
+## log10 weighted p-value is -12.2665603989823
 ## log10 non-weighted p-value is -8.20013388974944
 ## Doing atp2b4_rs1541255_num
-## log10 weighted p-value is -1.23533536649374
+## log10 weighted p-value is -1.23222468801925
 ## log10 non-weighted p-value is -1.38527803603474
 ```
 

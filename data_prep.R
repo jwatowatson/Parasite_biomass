@@ -107,14 +107,17 @@ gg_name_main = c('hbb_rs334_num',
                  'frem3_rs186873296_num',
                  'abo_rs8176719_num',
                  'atp2b4_rs1541255_num')
-kemri_control_data = ndila_dat_control[, gg_name_main]
+ndila_dat_control$g6pd_202 = ndila_dat_control$g6pd_rs1050828
+kemri_control_data = ndila_dat_control[, c(gg_name_main, gg_names_char)]
 
 for(i in 1:length(imputed_data)){
   imputed_data[[i]] = imputed_data[[i]][, var_names]
 }
 
-save(gg_names, gg_name_main, kemri_case_data,
-     kemri_control_data, imputed_data,
+save(gg_names, gg_name_main, gg_names_char,
+     kemri_case_data,
+     kemri_control_data,
+     imputed_data,
      file = 'analysis_data.Rdata')
 write.csv(kemri_case_data, file = 'kemri_case_data.csv',quote = F,row.names = F)
 write.csv(kemri_control_data, file = 'kemri_control_data.csv',quote = F,row.names = F)

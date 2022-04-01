@@ -87,6 +87,22 @@ gg_labels = plyr::mapvalues(gg_names,
                                    'GNAS'))
 ```
 
+
+## Genotype frequencies
+
+
+```{r table_genotypes}
+g_freqs_cases = sapply(c(gg_names_char,'hba1_2'), function(x, dat){
+  round(100*(table(dat[,x])/sum(!is.na(dat[,x]))),1)
+}, dat=kemri_case_data)
+
+g_freqs_controls = sapply(c(gg_names_char,'hba1_2'), function(x, dat){
+  round(100*(table(dat[,x])/sum(!is.na(dat[,x]))),1)
+}, dat=kemri_control_data)
+```
+
+
+
 ## Case-only association study
 
 
@@ -384,13 +400,17 @@ axis(2, at = 1:length(gg_names), gg_labels[ind_imp])
 
 ## Comparison complete case vs imputation
 
-```{r comparison_cc_imp, fig.height=5, fig.width=9}
+```{r comparison_cc_imp, fig.height=3, fig.width=9}
 par(mfrow=c(1,3),las=1, family='serif', cex.lab=1.3, cex.axis=1.3)
+my_titles = c('log parasite density',
+              'log PfHRP2', 
+              'log parasite/PfHRP2 ratio')
 for(j in 1:3){
   xlims = range(res_cc[[j]])
   ylims = range(res_imp[[j]])
+  my_lims = range(c(xlims, ylims)) # square plot
   plot(res_cc[[j]]$Estimate, res_imp[[j]]$Estimate,
-       xlim=xlims, ylim=ylims,main=my_endpoints[j],
+       xlim=my_lims, ylim=my_lims,main=my_titles[j],
        panel.first=grid(), xlab='Fold change (complete case)',
        ylab="Fold change (multiple imputation)")
   lines(-10:10, -10:10)
@@ -400,6 +420,7 @@ for(j in 1:3){
     lines(c(res_cc[[j]]$lowerCI[i],res_cc[[j]]$upperCI[i]),
           rep(res_imp[[j]]$Estimate[i], 2))
   }
+  abline(v=0, h=0, lty=2)
 }
 ```
 
@@ -685,6 +706,7 @@ abline(v=0, h=0, lty=2)
 
 
 ```{r atp2b4_hb}
+par(las=1, family='serif',cex.lab=1.3, cex.axis=1.3)
 boxplot(hb ~ as.factor(atp2b4_rs1541255_num), kemri_case_data,
         ylab='Haemoglobin (g/dL)',
         varwidth=T,xlab = expression(italic(ATP2B4))); grid()
