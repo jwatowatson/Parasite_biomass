@@ -11,8 +11,6 @@ output:
 
 
 
-
-
 ## Load data
 
 Data are also saved as .csv files (one for the cases, one for the controls)
@@ -563,19 +561,19 @@ data tilting case-control
 
 ```
 ## Doing hbb_rs334_num
-## log10 weighted p-value is -31.0810339509922
+## log10 weighted p-value is -31.0391174859841
 ## log10 non-weighted p-value is -37.7818996998084
 ## Doing hba1_2
-## log10 weighted p-value is -5.52118821693549
+## log10 weighted p-value is -5.5209341279592
 ## log10 non-weighted p-value is -4.16336276635852
 ## Doing frem3_rs186873296_num
-## log10 weighted p-value is -12.1192561925893
+## log10 weighted p-value is -12.1152289102768
 ## log10 non-weighted p-value is -10.9532600611397
 ## Doing abo_rs8176719_num
-## log10 weighted p-value is -12.273798971771
+## log10 weighted p-value is -12.274769531361
 ## log10 non-weighted p-value is -8.20013388974944
 ## Doing atp2b4_rs1541255_num
-## log10 weighted p-value is -1.23497078182602
+## log10 weighted p-value is -1.23083613371041
 ## log10 non-weighted p-value is -1.38527803603474
 ```
 

@@ -13,17 +13,10 @@ knitr::opts_chunk$set(cache = TRUE, cache.comments = FALSE,
                       echo = F, include = TRUE, 
                       fig.width = 8, fig.height = 8,
                       fig.pos = 'H',dev = 'png', dpi = 300)
-# library(mgcv)
-# library(gtools)
-library(missForest)
-# library(doParallel)
-library(lattice)
 library(mitools)
 library(mvtnorm)
 library(matrixStats)
 ```
-
-
 
 
 ## Load data
@@ -305,7 +298,7 @@ for(j in 1:3){
 ```{r fig1}
 mycols = RColorBrewer::brewer.pal(n = 8, 'Set2')[c(1,3,7,8)]
 par(las=1, family='serif', cex.axis=1.3, cex.lab=1.3)
-layout(mat = matrix(data = c(1,3,3,2,3,3), nrow = 2, byrow = T))
+layout(mat = matrix(data = c(1,4,4,2,4,4,3,4,4), nrow = 3, byrow = T))
 
 hist(kemri_case_data$log_parasites,main = '', 
      xlab = 'Parasite density (per uL)',breaks = 35,
@@ -317,9 +310,6 @@ axis(1, at = 2:6,
                 expression(10^4),
                 expression(10^5),
                 expression(10^6)))
-abline(v=mean(kemri_case_data$log_parasites), lwd=2)
-abline(v=mean(kemri_case_data$log_parasites)+c(1,-1)*
-         sd(kemri_case_data$log_parasites),lwd=1,lty=2 )
 mtext(text = 'A',side = 3,line = 2,adj = 0, cex=1.5)
 
 hist(kemri_case_data$log_hrp2,main = '', 
@@ -332,10 +322,19 @@ axis(1, at = 1:5,
                 expression(10^3),   
                 expression(10^4),
                 expression(10^5)))
-abline(v=mean(kemri_case_data$log_hrp2), lwd=2)
-abline(v=mean(kemri_case_data$log_hrp2)+c(1,-1)*
-         sd(kemri_case_data$log_hrp2),   lwd=1,lty=2)
+
 mtext(text = 'B',side = 3,line = 2,adj = 0, cex=1.5)
+
+hist(kemri_case_data$log_ratio, main = '', 
+     xlab = 'Ratio (ng/parasite)', breaks = 30,
+     ylab = 'Number of patients', xaxt='n',
+     col = adjustcolor(mycols[3],.6), border = NA)
+axis(1, at = seq(-7, -1, by =2), 
+     labels = c(expression(10^-7),
+                expression(10^-5),   
+                expression(10^-3),
+                expression(10^-1)))
+mtext(text = 'C',side = 3,line = 2,adj = 0, cex=1.5)
 
 x_lims = range(sapply(res_imp, range))
 par(mar=c(5,9,4,2))
@@ -349,12 +348,12 @@ axis(1, at = log10(c(.1,.2,.5,1,2)),
 abline(v=0, lwd=3, lty=2)
 
 for(j in 1:3){
-  points(res_imp[[j]]$Estimate, 1:length(gg_names) + (j-2)*0.2, 
+  points(res_imp[[j]]$Estimate, 1:length(gg_names) - (j-2)*0.2, 
          pch=15+j,cex=1.5, col=mycols[j])
   for(i in 1:length(gg_names)){
     lines(c(res_imp[[j]]$lowerCI[i], 
             res_imp[[j]]$upperCI[i]), 
-          c(i,i)+ (j-2)*0.2,lwd=2,col=mycols[j])
+          c(i,i) - (j-2)*0.2,lwd=2,col=mycols[j])
   }
 }
 
@@ -382,12 +381,12 @@ axis(1, at = log10(c(.1,.2,.5,1,2)),
 abline(v=0, lwd=3, lty=2)
 
 for(j in 1:3){
-  points(res_cc[[j]]$Estimate, 1:length(gg_names) + (j-2)*0.2, 
+  points(res_cc[[j]]$Estimate, 1:length(gg_names) - (j-2)*0.2, 
          pch=15+j,cex=1.5, col=mycols[j])
   for(i in 1:length(gg_names)){
     lines(c(res_cc[[j]]$lowerCI[i], 
             res_cc[[j]]$upperCI[i]), 
-          c(i,i)+ (j-2)*0.2,lwd=2,col=mycols[j])
+          c(i,i) - (j-2)*0.2,lwd=2,col=mycols[j])
   }
 }
 
@@ -582,9 +581,9 @@ axis(2, at = -8 : -1,
 
 
 ```{r}
-## load posterior distrubution from previous modelling work
+## load posterior distribution from previous modelling work
 ## see https://www.medrxiv.org/content/10.1101/2021.10.27.21265557v1
-load('~/Dropbox/MORU/Severe malaria/Defining_Severe_Malaria/SevereMalariaDiagnosis/Rout/mod2_LC_all_cor.stanfit')
+load('mod2_LC_all_cor.stanfit')
 thetas = rstan::extract(out_all_cor)
 ps = array(dim = c(nrow(kemri_case_data), 500))
 
