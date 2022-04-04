@@ -1,0 +1,717 @@
+---
+title: "Effect of known polymorphisms on parasite biomass in severe malaria"
+author: "James Watson"
+date: "31/03/2022"
+output: 
+  html_document: 
+    toc: yes
+    keep_md: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(cache = TRUE, cache.comments = FALSE,
+                      echo = F, include = TRUE, 
+                      fig.width = 8, fig.height = 8,
+                      fig.pos = 'H',dev = 'png', dpi = 300)
+# library(mgcv)
+# library(gtools)
+library(missForest)
+# library(doParallel)
+library(lattice)
+library(mitools)
+library(mvtnorm)
+library(matrixStats)
+```
+
+
+
+
+## Load data
+
+Data are also saved as .csv files (one for the cases, one for the controls)
+
+```{r}
+load(file = 'analysis_data.Rdata')
+
+table(is.na(kemri_case_data$log_hrp2))
+table(is.na(kemri_case_data$log_parasites))
+table(is.na(kemri_case_data$log_platelet))
+```
+
+
+## Compute endpoints
+
+Compute hrp2/parasite ratio (in units of ng/parasite)
+
+```{r ratio}
+kemri_case_data$log_ratio = 
+  kemri_case_data$log_hrp2-(kemri_case_data$log_parasites+3)
+```
+
+
+##  key polymorphisms
+
+```{r}
+writeLines(sprintf('The %s polymorphisms we use in the analysis are:', length(gg_names)))
+print(gg_names) # gg_names are the numeric data for the polymorphisms (number of copies: 0,1,2)
+
+
+gg_labels = plyr::mapvalues(gg_names,
+                            from = c('hbb_rs334_num',
+                                     'hba1_2',
+                                     'frem3_rs186873296_num',
+                                     'abo_rs8176719_num',
+                                     'atp2b4_rs1541255_num',
+                                     'g6pd_202',
+                                     'cd40lg_rs3092945_num',
+                                     'rps6kl1_rs3742785_num',
+                                     'loc727982_rs1371478_num',
+                                     'arl14_rs75731597_num',
+                                     'lphn2_rs72933304_num',
+                                     'il10_rs1800890_num',
+                                     'cand1_rs10459266_num',
+                                     'gnas_rs8386_num'), 
+                            to = c('HBB',
+                                   'HBA1-2',
+                                   'FREM3',
+                                   'ABO',
+                                   'ATP2B4',
+                                   'G6PD',
+                                   'CD40LG',
+                                   'RPS6KL1',
+                                   'LOC727982',
+                                   'ARL14',
+                                   'LPHN2',
+                                   'IL10',
+                                   'CAND1',
+                                   'GNAS'))
+```
+
+
+## Genotype frequencies
+
+
+```{r table_genotypes}
+g_freqs_cases = sapply(c(gg_names_char,'hba1_2'), function(x, dat){
+  round(100*(table(dat[,x])/sum(!is.na(dat[,x]))),1)
+}, dat=kemri_case_data)
+print(g_freqs_cases)
+g_freqs_controls = sapply(c(gg_names_char,'hba1_2'), function(x, dat){
+  round(100*(table(dat[,x])/sum(!is.na(dat[,x]))),1)
+}, dat=kemri_control_data)
+print(g_freqs_controls)
+```
+
+
+
+## Case-only association study
+
+
+Best fitting models. We use single imputation to which is best fitting model
+
+```{r}
+my_mods = c('A','H','R') # A: additive; H: heterozygous; R: recessive
+my_endpoints = c('log_parasites','log_hrp2','log_ratio')
+best_mod = array(dim = c(length(imputed_data), length(gg_names), 3))
+dimnames(best_mod) = list(paste('imputation',1:10),gg_labels, my_endpoints)
+
+for(k_imp in 1:length(imputed_data)){
+  imputed_data[[k_imp]]$log_ratio = imputed_data[[k_imp]]$log_hrp2-(imputed_data[[k_imp]]$log_parasites+3)
+  for(cc in 1:length(gg_names)){
+    
+    gg = gg_names[cc]
+    g_dat_gen = as.factor(kemri_case_data[,gg])
+    g_datA = kemri_case_data[,gg]
+    g_datH = as.numeric(kemri_case_data[,gg]==2)
+    g_datR = as.numeric(kemri_case_data[,gg]==3)
+    
+    # iterate over the 3 endpoints (traits)
+    for(j in 1:3){
+      mod_gen = lm(y ~ g, 
+                   data=data.frame(y=imputed_data[[k_imp]][, my_endpoints[j]],
+                                   g=g_dat_gen))
+      mod_A = lm(y ~ g, 
+                 data=data.frame(y=imputed_data[[k_imp]][, my_endpoints[j]],
+                                 g=g_datA))
+      mod_H = lm(y ~ g, 
+                 data=data.frame(y=imputed_data[[k_imp]][, my_endpoints[j]],
+                                 g=g_datH))
+      mod_R = lm(y ~ g, 
+                 data=data.frame(y=imputed_data[[k_imp]][, my_endpoints[j]],
+                                 g=g_datR))
+      out=lmtest::lrtest(mod_A, mod_H, mod_R)
+      best_mod[k_imp,cc,j] = my_mods[which.max(out$LogLik)]
+      outall = c(lmtest::lrtest(mod_gen, mod_A)$`Pr(>Chisq)`[2],
+                 lmtest::lrtest(mod_gen, mod_H)$`Pr(>Chisq)`[2],
+                 lmtest::lrtest(mod_gen, mod_R)$`Pr(>Chisq)`[2])
+      if(all(outall > 0.05)){
+        best_mod[k_imp,cc,j] = paste0(best_mod[k_imp,cc,j], '_nodiff')
+      }
+    }
+  }
+}
+
+
+writeLines(sprintf('Across all imputations for %s',my_endpoints[1]))
+print(best_mod[,,1])
+writeLines(sprintf('Across all imputations for %s',my_endpoints[2]))
+print(best_mod[,,2])
+writeLines(sprintf('Across all imputations for %s',my_endpoints[3]))
+print(best_mod[,,3])
+
+# no difference across the imputations - just take the first one
+best_mod = best_mod[1,,]
+
+
+print(best_mod[, 'log_hrp2'])
+gg_models = best_mod[, 'log_hrp2']
+# if there is not a best model then we take additive as most plausible
+gg_models[grep(pattern = 'nodiff',x = gg_models)]='A'
+
+gg_models[grep(pattern = 'R',x = gg_models)]='R'
+gg_models[grep(pattern = 'H',x = gg_models)]='H'
+gg_models[grep(pattern = 'A',x = gg_models)]='A'
+
+
+all(names(gg_models)==gg_names)
+for(i in 1:length(gg_labels)){
+  gg_labels[i] = paste(gg_labels[i], ' (', gg_models[[i]],')',sep='')
+}
+```
+
+## Complete case analysis
+
+```{r complete_case_analysis}
+res_cc = list()
+for(j in 1:3){
+  res_cc[[j]] = array(dim = c(length(gg_names),3))
+}
+for(cc in 1:length(gg_names)){
+  gg = gg_names[cc]
+  
+  writeLines(sprintf('******* Analysis for %s polymorphism', gg))
+  if(gg_models[cc]=='A'){
+    g_dat = kemri_case_data[,gg]
+  } 
+  if(gg_models[cc]=='H'){
+    g_dat = as.numeric(kemri_case_data[,gg]==2)
+  }
+  if(gg_models[cc]=='R'){
+    g_dat = as.numeric(kemri_case_data[,gg]==3)
+  }
+  
+  for(j in 1:3){
+    dat = data.frame(y = scale(kemri_case_data[,my_endpoints[j]]),
+                     g = g_dat,
+                     ethnic = kemri_case_data$ethnic)
+    mod = lm(y ~ g+ethnic,data = dat)
+    writeLines(sprintf('For %s model p=%s', 
+                       my_endpoints[j],
+                       summary(mod)$coefficients['g',4]))
+    res_cc[[j]][cc,1:3] = mod$coefficients['g'] + c(0,-1.96, 1.96)*summary(mod)$coefficients['g',2]
+  }
+}
+
+ind_cc = order(res_cc[[2]][,1],decreasing = T)
+for(j in 1:3){ 
+  res_cc[[j]] = data.frame(res_cc[[j]])
+  colnames(res_cc[[j]]) = c('Estimate','upperCI','lowerCI')
+  rownames(res_cc[[j]])=gg_labels
+  res_cc[[j]] = res_cc[[j]][ind_cc, ]
+}
+```
+
+
+```{r estimated_effect_sizes_compcase}
+for(j in 1:3){
+  writeLines(sprintf('Effects for %s', my_endpoints[j]))
+  print(signif(10^res_cc[[j]],2))
+}
+```
+
+## Multiple imputation analysis
+
+Estimate effects using multiple imputation
+
+```{r effect_models}
+MIcombineP <- function(MIcombineRes,digits=3) {
+  tStat <- MIcombineRes$coefficients/sqrt(diag(MIcombineRes$variance))
+  signif(2*pt(-abs(tStat),df=MIcombineRes$df),digits)
+}
+
+res_imp = list()
+for(j in 1:3){
+  res_imp[[j]] = array(dim = c(length(gg_names),3))
+}
+# scale the imputed data
+imp_dat_mod = imputed_data
+for(i in 1:length(imputed_data)){
+  imp_dat_mod[[i]]$log_ratio =
+    scale(imputed_data[[i]]$log_hrp2-imputed_data[[i]]$log_parasites-3)
+  imp_dat_mod[[i]]$log_parasites = scale(imputed_data[[i]]$log_parasites)
+  imp_dat_mod[[i]]$log_hrp2 = scale(imputed_data[[i]]$log_hrp2)
+}
+
+for(cc in 1:length(gg_names)){
+  gg = gg_names[cc]
+  
+  writeLines(sprintf('******* Analysis for %s polymorphism', gg))
+  if(gg_models[cc]=='A'){
+    g_dat = kemri_case_data[,gg]
+  } 
+  if(gg_models[cc]=='H'){
+    g_dat = as.numeric(kemri_case_data[,gg]==2)
+  }
+  if(gg_models[cc]=='R'){
+    g_dat = as.numeric(kemri_case_data[,gg]==3)
+  }
+  
+  for(j in 1:3){
+    for(i in 1:length(imp_dat_mod)){
+      imp_dat_mod[[i]]$g=g_dat
+      imp_dat_mod[[i]]$y=imp_dat_mod[[i]][,my_endpoints[j]]
+    }
+    imp_dat_obj = mitools::imputationList(lapply(imp_dat_mod, function(x) x))
+    mods = MIcombine(with(imp_dat_obj, lm(y ~ g+ethnic)))
+    
+    writeLines(sprintf('For %s model p=%s',
+                       my_endpoints[j],
+                       MIcombineP(mods)['g']))
+    
+    res_imp[[j]][cc,1:3] = mods$coefficients['g']+ 
+      c(0,-1.96, 1.96)*sqrt(mods$variance['g','g'])
+  }
+}
+
+ind_imp = order(res_imp[[2]][,1],decreasing = T)
+for(j in 1:3){ 
+  res_imp[[j]] = data.frame(res_imp[[j]])
+  colnames(res_imp[[j]]) = c('Estimate','upperCI','lowerCI')
+  rownames(res_imp[[j]])=gg_labels
+  res_imp[[j]] = res_imp[[j]][ind_imp, ]
+}
+```
+
+
+```{r estimated_effect_sizes_imp}
+for(j in 1:3){
+  writeLines(sprintf('Effects for %s', my_endpoints[j]))
+  print(signif(10^res_imp[[j]],2))
+}
+```
+
+## Figure 1 (main result)
+
+```{r fig1}
+mycols = RColorBrewer::brewer.pal(n = 8, 'Set2')[c(1,3,7,8)]
+par(las=1, family='serif', cex.axis=1.3, cex.lab=1.3)
+layout(mat = matrix(data = c(1,3,3,2,3,3), nrow = 2, byrow = T))
+
+hist(kemri_case_data$log_parasites,main = '', 
+     xlab = 'Parasite density (per uL)',breaks = 35,
+     ylab = 'Number of patients', xaxt='n', 
+     col = adjustcolor(mycols[1],.6), border = NA)
+axis(1, at = 2:6, 
+     labels = c(expression(10^2),
+                expression(10^3),   
+                expression(10^4),
+                expression(10^5),
+                expression(10^6)))
+abline(v=mean(kemri_case_data$log_parasites), lwd=2)
+abline(v=mean(kemri_case_data$log_parasites)+c(1,-1)*
+         sd(kemri_case_data$log_parasites),lwd=1,lty=2 )
+mtext(text = 'A',side = 3,line = 2,adj = 0, cex=1.5)
+
+hist(kemri_case_data$log_hrp2,main = '', 
+     xlab = 'PfHRP2 (ng/mL)', breaks = 30,
+     ylab = 'Number of patients', xaxt='n',
+     col = adjustcolor(mycols[2],.6), border = NA)
+axis(1, at = 1:5, 
+     labels = c(10,
+                expression(10^2),
+                expression(10^3),   
+                expression(10^4),
+                expression(10^5)))
+abline(v=mean(kemri_case_data$log_hrp2), lwd=2)
+abline(v=mean(kemri_case_data$log_hrp2)+c(1,-1)*
+         sd(kemri_case_data$log_hrp2),   lwd=1,lty=2)
+mtext(text = 'B',side = 3,line = 2,adj = 0, cex=1.5)
+
+x_lims = range(sapply(res_imp, range))
+par(mar=c(5,9,4,2))
+plot(NA, NA, 
+     pch = 16, xlim = x_lims,
+     xlab = 'Fold change (in units of standard deviation)',
+     ylim = c(.5, length(gg_names) + .5),cex=1.5,
+     panel.first=grid(), ylab='', yaxt='n',xaxt='n')
+axis(1, at = log10(c(.1,.2,.5,1,2)), 
+     labels = c(.1,.2,.5,1,2))
+abline(v=0, lwd=3, lty=2)
+
+for(j in 1:3){
+  points(res_imp[[j]]$Estimate, 1:length(gg_names) + (j-2)*0.2, 
+         pch=15+j,cex=1.5, col=mycols[j])
+  for(i in 1:length(gg_names)){
+    lines(c(res_imp[[j]]$lowerCI[i], 
+            res_imp[[j]]$upperCI[i]), 
+          c(i,i)+ (j-2)*0.2,lwd=2,col=mycols[j])
+  }
+}
+
+legend('bottomleft', inset = 0.05, 
+       col=mycols, pch = c(17,16,18), cex=1.3,
+       legend = c('Parasite density','Plasma PfHRP2','PfHRP2/parasite ratio'))
+mtext(text = 'C',side = 3,line = 1,adj = 0, cex=1.5)
+par(font.axis = 3)
+axis(2, at = 1:length(gg_names), gg_labels[ind_imp])
+```
+
+## Figure 1 (complete case)
+
+```{r Fig1_complete_case}
+par(las=1, family='serif', cex.axis=1.3,
+    cex.lab=1.3,mar=c(5,9,4,2))
+x_lims = range(sapply(res_cc, range))
+plot(NA, NA, 
+     pch = 16, xlim = x_lims,
+     xlab = 'Fold change (in units of standard deviation)',
+     ylim = c(.5, length(gg_names) + .5),cex=1.5,
+     panel.first=grid(), ylab='', yaxt='n',xaxt='n')
+axis(1, at = log10(c(.1,.2,.5,1,2)), 
+     labels = c(.1,.2,.5,1,2))
+abline(v=0, lwd=3, lty=2)
+
+for(j in 1:3){
+  points(res_cc[[j]]$Estimate, 1:length(gg_names) + (j-2)*0.2, 
+         pch=15+j,cex=1.5, col=mycols[j])
+  for(i in 1:length(gg_names)){
+    lines(c(res_cc[[j]]$lowerCI[i], 
+            res_cc[[j]]$upperCI[i]), 
+          c(i,i)+ (j-2)*0.2,lwd=2,col=mycols[j])
+  }
+}
+
+legend('bottomleft', inset = 0.05, 
+       col=mycols, pch = c(17,16,18), cex=1.3,
+       legend = c('Parasite density','Plasma PfHRP2','PfHRP2/parasite ratio'))
+par(font.axis = 3)
+axis(2, at = 1:length(gg_names), gg_labels[ind_imp])
+```
+
+
+## Comparison complete case vs imputation
+
+```{r comparison_cc_imp, fig.height=3, fig.width=9}
+par(mfrow=c(1,3),las=1, family='serif', cex.lab=1.3, cex.axis=1.3)
+my_titles = c('log parasite density',
+              'log PfHRP2', 
+              'log parasite/PfHRP2 ratio')
+for(j in 1:3){
+  xlims = range(res_cc[[j]])
+  ylims = range(res_imp[[j]])
+  my_lims = range(c(xlims, ylims)) # square plot
+  plot(res_cc[[j]]$Estimate, res_imp[[j]]$Estimate,
+       xlim=my_lims, ylim=my_lims,main=my_titles[j],
+       panel.first=grid(), xlab='Fold change (complete case)',
+       ylab="Fold change (multiple imputation)")
+  lines(-10:10, -10:10)
+  for(i in 1:length(gg_names)){
+    lines(rep(res_cc[[j]]$Estimate[i], 2),
+          c(res_imp[[j]]$lowerCI[i],res_imp[[j]]$upperCI[i]))
+    lines(c(res_cc[[j]]$lowerCI[i],res_cc[[j]]$upperCI[i]),
+          rep(res_imp[[j]]$Estimate[i], 2))
+  }
+  abline(v=0, h=0, lty=2)
+}
+```
+
+
+
+## Type of model
+
+Best fitting model for the main polymorphisms using complete data only
+
+```{r}
+for(cc in 1:length(gg_name_main)){
+  gg = gg_name_main[cc]
+  print(gg)
+  mod_A = lm(log_hrp2 ~ g, data=data.frame(log_hrp2=kemri_case_data$log_hrp2,
+                                           ethnic=kemri_case_data$ethnic,
+                                           g=kemri_case_data[,gg]))
+  mod_R = lm(log_hrp2 ~ g, data=data.frame(log_hrp2=kemri_case_data$log_hrp2,
+                                           ethnic=kemri_case_data$ethnic,
+                                           g= as.numeric(kemri_case_data[,gg]==3)))
+  mod_H = lm(log_hrp2 ~ g, data=data.frame(log_hrp2=kemri_case_data$log_hrp2,
+                                           ethnic=kemri_case_data$ethnic,
+                                           g= as.numeric(kemri_case_data[,gg]==2)))
+  print(lmtest::lrtest(mod_A,mod_R,mod_H))
+}
+```
+
+
+
+## Boxplots
+### Red cell polymorphisms
+
+```{r fig2, echo=F}
+par(mfrow = c(2,4), las=1, family='serif', cex.lab=1.3, cex.axis=1.2, bty='n')
+boxplot(log_parasites ~ hbb_rs334, kemri_case_data,
+        ylab='Parasite density (per/ul)',yaxt='n',
+        varwidth=T,xlab = expression(italic(HBB))); grid()
+axis(2, at = 2:6, 
+     labels = c(expression(10^2),
+                expression(10^3),   
+                expression(10^4),
+                expression(10^5),
+                expression(10^6)))
+
+boxplot(log_hrp2 ~ hbb_rs334, kemri_case_data,
+        ylab='Plasma PfHRP2 (ng/ml)',yaxt='n',
+        varwidth=T,xlab = expression(italic(HBB))); grid()
+axis(2, at = 1:5, 
+     labels = c(10,
+                expression(10^2),
+                expression(10^3),   
+                expression(10^4),
+                expression(10^5)))
+
+boxplot(log_parasites ~ abo_rs8176719, kemri_case_data,
+        ylab='Parasite density (per/ul)',yaxt='n',
+        varwidth=T,  xlab = expression(italic(ABO))); grid()
+axis(2, at = 2:6, 
+     labels = c(expression(10^2),
+                expression(10^3),   
+                expression(10^4),
+                expression(10^5),
+                expression(10^6)))
+
+boxplot(log_hrp2 ~ abo_rs8176719, kemri_case_data,   
+        ylab='Plasma PfHRP2 (ng/ml)',yaxt='n',
+        varwidth=T, xlab = expression(italic(ABO))); grid()
+axis(2, at = 1:5, 
+     labels = c(10,
+                expression(10^2),
+                expression(10^3),   
+                expression(10^4),
+                expression(10^5)))
+
+boxplot(log_parasites ~ hba1_2, kemri_case_data,
+        ylab='Parasite density (per/ul)',yaxt='n',
+        varwidth=T, xlab = expression(italic(HBA1-2)),xaxt='n');
+axis(1,at=1:3, labels = c('WT','Het','Homo'))
+axis(2, at = 2:6, 
+     labels = c(expression(10^2),
+                expression(10^3),   
+                expression(10^4),
+                expression(10^5),
+                expression(10^6)))
+grid()
+boxplot(log_hrp2 ~ hba1_2, kemri_case_data,
+        ylab='Plasma PfHRP2 (ng/ml)',yaxt='n',
+        varwidth=T, xlab = expression(italic(HBA1-2)),xaxt='n'); grid()
+axis(2, at = 1:5, 
+     labels = c(10,
+                expression(10^2),
+                expression(10^3),   
+                expression(10^4),
+                expression(10^5)))
+axis(1,at=1:3, labels = c('WT','Het','Homo'))
+
+boxplot(log_parasites ~ frem3_rs186873296, kemri_case_data,
+        ylab='Parasite density (per/ul)',yaxt='n',
+        varwidth=T, xlab = expression(italic(FREM3))); grid()
+axis(2, at = 2:6, 
+     labels = c(expression(10^2),
+                expression(10^3),   
+                expression(10^4),
+                expression(10^5),
+                expression(10^6)))
+
+boxplot(log_hrp2 ~ frem3_rs186873296, kemri_case_data,
+        ylab='Plasma PfHRP2 (ng/ml)', yaxt='n',
+        varwidth=T, xlab = expression(italic(FREM3))); grid()
+axis(2, at = 1:5, 
+     labels = c(10,
+                expression(10^2),
+                expression(10^3),   
+                expression(10^4),
+                expression(10^5)))
+```
+
+
+### ATP2B4
+
+
+```{r fig3, fig.height=8, fig.width=10, echo=F}
+par(mfrow = c(1,3), las=1, family='serif', 
+    cex.lab=1.5, cex.axis=1.5, bty='n')
+
+boxplot(log_parasites ~ atp2b4_rs1541255, kemri_case_data,
+        ylab='Parasite density (per/ul)',yaxt='n',
+        varwidth=T,xlab = expression(italic(ATP2B4))); grid()
+axis(2, at = 2:6, 
+     labels = c(expression(10^2),
+                expression(10^3),   
+                expression(10^4),
+                expression(10^5),
+                expression(10^6)))
+
+boxplot(log_hrp2 ~ atp2b4_rs1541255, kemri_case_data,
+        ylab='Plasma PfHRP2 (ng/ml)',yaxt='n',
+        varwidth=T,xlab = expression(italic(ATP2B4))); grid()
+axis(2, at = 1:5, 
+     labels = c(10,
+                expression(10^2),
+                expression(10^3),   
+                expression(10^4),
+                expression(10^5)))
+
+boxplot(log_ratio ~ atp2b4_rs1541255, kemri_case_data,
+        ylab='PfHRP2/parasite ratio (ng/parasite)',yaxt='n',
+        varwidth=T,xlab = expression(italic(ATP2B4))); grid()
+axis(2, at = -8 : -1, 
+     labels = c(expression(10^-8),
+                expression(10^-7), expression(10^-6),
+                expression(10^-5), expression(10^-4),
+                expression(10^-3),expression(10^-2),
+                expression(10^-1)))
+
+```
+
+## Relationship with true severe malaria
+
+
+```{r}
+## load posterior distrubution from previous modelling work
+## see https://www.medrxiv.org/content/10.1101/2021.10.27.21265557v1
+load('~/Dropbox/MORU/Severe malaria/Defining_Severe_Malaria/SevereMalariaDiagnosis/Rout/mod2_LC_all_cor.stanfit')
+thetas = rstan::extract(out_all_cor)
+ps = array(dim = c(nrow(kemri_case_data), 500))
+
+# use the posterior parameters to estimate individual probabilities of severe malaria using the published model (mixture of two bivariate normals)
+for(ss in 1:500){
+  j = sample(x = 1:1000, 1)
+  k = sample(1:10, 1)
+  x = cbind(-imputed_data[[k]]$log_platelet, imputed_data[[k]]$log_hrp2)
+  
+  pi_SM = thetas$prev[j,3]
+  
+  d_notSM = dmvnorm(x, mean = thetas$mu[j,1,], 
+                    sigma = thetas$Sigma[j,1,,],
+                    log = T)
+  d_SM = dmvnorm(x, mean = thetas$mu[j,2,], 
+                 sigma = thetas$Sigma[j,2,,],
+                 log = T)
+  
+  log_ps = log(pi_SM) + d_SM - 
+    apply(cbind(d_SM, d_notSM), 
+          1, function(x) {
+            logSumExp(c(x[1]+log(pi_SM), 
+                        x[2]+log(1-pi_SM)))} )
+  ps[,ss]=exp(log_ps)
+}
+
+hist(rowMeans(ps), breaks = 20)
+kemri_case_data$ps = rowMeans(ps)
+```
+
+
+
+data tilting case-control
+```{r}
+gg_labels_main = c("HBB (A)","HBA1-2 (R)","FREM3 (A)","ABO (R)","ATP2B4 (A)")
+
+mod_types = c('A','R','A','R','A')
+effect_nw = effect_w = array(dim = c(length(gg_name_main), 3))
+for(gg in gg_name_main){
+  i=which(gg==gg_name_main)
+  writeLines(sprintf('Doing %s', gg))
+  
+  mydata = data.frame(g = c(kemri_control_data[,gg], kemri_case_data[,gg]),
+                      phenotype=c(rep(0,nrow(kemri_control_data)),
+                                  rep(1,nrow(kemri_case_data))),
+                      ws = c(rep(1, nrow(kemri_control_data)),
+                             kemri_case_data$ps))
+  if(mod_types[i]=='R'){
+    mydata$g = as.numeric(mydata$g==3)
+  }
+  # non-weighted logistic regression
+  fit_glm0 = glm(phenotype ~ g, family='binomial',data=mydata)
+  
+  # weighted logistic regression
+  fit_glm1 = glm(phenotype ~ g, family='quasibinomial',
+                 data=mydata, weights = ws)
+  
+  # compute the standard error for the weighted model - takes into account reduced effective sample size
+  cov.m1 <- sandwich::vcovHC(fit_glm1, type = "HC0")
+  std.err <- sqrt(diag(cov.m1))['g']
+  pval <- 2 * pnorm(abs(coef(fit_glm1)['g']/std.err), 
+                    lower.tail = FALSE)
+  writeLines(sprintf('log10 weighted p-value is %s', log10(pval)))
+  writeLines(sprintf('log10 non-weighted p-value is %s', log10(summary(fit_glm0)$coefficients['g',4])))
+  
+  effect_nw[i,1:3]= coef(fit_glm0)['g'] + c(0,-1.96, 1.96)*summary(fit_glm0)$coefficients['g',2]
+  
+  
+  effect_w[i,1:3] = coef(fit_glm1)['g'] + c(0,-1.96, 1.96)*std.err
+}
+```
+
+
+```{r fig4}
+par(mar=c(5,9,4,2),las=1, family='serif', cex.lab=1.3, cex.axis=1.3)
+plot(effect_w[,1], 1:nrow(effect_w), pch = 16, 
+     xlim = c(-2.7,0),
+     xlab = 'Odds ratio',
+     col=mycols[3], ylim = c(.5, nrow(effect_w)+ .5),cex=1.5,
+     panel.first=grid(), ylab='', yaxt='n',xaxt='n')
+axis(1, at = log(c(0.1,.2,.5,1)), labels = c(0.1,.2,.5,1))
+axis(1, at = log(seq(0.1,1,by=.1)), labels = NA)
+abline(v=0,lwd=3, lty=2)
+
+points(effect_nw[,1], 1:nrow(effect_w) + 0.2, pch=17,cex=1.5, col=mycols[4])
+for(i in 1:nrow(effect_w)){
+  lines(c(effect_w[i,2], effect_w[i,3]), 
+        c(i,i),lwd=2,col=mycols[3])
+  lines(c(effect_nw[i,2], effect_nw[i,3]),
+        c(i,i)+0.2,lwd=2,col=mycols[4])
+  
+}
+legend('topleft', inset = 0.05, 
+       col=mycols[4:3], pch = 17:16, cex=1.3,
+       legend = c('Non-weighted','Weighted'))
+par(font.axis = 3)
+axis(2, at = 1:nrow(effect_w), gg_labels_main)
+```
+
+
+```{r}
+HBAS_beta = c(-1.816761911, res_imp[[2]]$Estimate[14])
+HBSS_beta = c(0, res_imp[[2]]$Estimate[14]*2)
+frem3_beta = c(-0.443040925, res_imp[[2]]$Estimate[11])
+ABO_beta = c(-0.304482546, res_imp[[2]]$Estimate[12])
+HBA_beta = c(log(0.82), res_imp[[2]]$Estimate[13])
+atp2b4_beta = c(-0.442086456, res_imp[[2]]$Estimate[1])
+xx = rbind(HBAS_beta, HBSS_beta, frem3_beta,ABO_beta,HBA_beta, atp2b4_beta)
+par(las = 1)
+plot(xx[,1], xx[,2], xlab = 'Case-control odds ratio', 
+     ylab = 'Plasma PfHRP2 relative to normal individuals',
+     panel.first=grid(), pch=15, yaxt='n',xaxt='n')
+axis(2, at = c(-1.5, -1, -.5, 0, log10(1.3)), labels = signif(10^(c(-1.5, -1, -.5, 0,log10(1.3)))*100,2))
+axis(1, at = c(-1.5, -1, -.5, 0), labels = signif(exp(c(-1.5, -1, -.5, 0)),2))
+abline(v=0, h=0, lty=2)
+```
+
+
+## ATP2B4 and haemoglobin
+
+
+```{r atp2b4_hb}
+par(las=1, family='serif',cex.lab=1.3, cex.axis=1.3)
+boxplot(hb ~ as.factor(atp2b4_rs1541255_num), kemri_case_data,
+        ylab='Haemoglobin (g/dL)',
+        varwidth=T,xlab = expression(italic(ATP2B4))); grid()
+```
+
+
+
