@@ -172,59 +172,11 @@ for(i in 1:length(gg_labels)){
 }
 ```
 
-## Complete case analysis
-
-```{r complete_case_analysis}
-res_cc = list()
-for(j in 1:3){
-  res_cc[[j]] = array(dim = c(length(gg_names),3))
-}
-for(cc in 1:length(gg_names)){
-  gg = gg_names[cc]
-  
-  writeLines(sprintf('******* Analysis for %s polymorphism', gg))
-  if(gg_models[cc]=='A'){
-    g_dat = kemri_case_data[,gg]
-  } 
-  if(gg_models[cc]=='H'){
-    g_dat = as.numeric(kemri_case_data[,gg]==2)
-  }
-  if(gg_models[cc]=='R'){
-    g_dat = as.numeric(kemri_case_data[,gg]==3)
-  }
-  
-  for(j in 1:3){
-    dat = data.frame(y = scale(kemri_case_data[,my_endpoints[j]]),
-                     g = g_dat,
-                     ethnic = kemri_case_data$ethnic)
-    mod = lm(y ~ g+ethnic,data = dat)
-    writeLines(sprintf('For %s model p=%s', 
-                       my_endpoints[j],
-                       summary(mod)$coefficients['g',4]))
-    res_cc[[j]][cc,1:3] = mod$coefficients['g'] + c(0,-1.96, 1.96)*summary(mod)$coefficients['g',2]
-  }
-}
-
-ind_cc = order(res_cc[[2]][,1],decreasing = T)
-for(j in 1:3){ 
-  res_cc[[j]] = data.frame(res_cc[[j]])
-  colnames(res_cc[[j]]) = c('Estimate','upperCI','lowerCI')
-  rownames(res_cc[[j]])=gg_labels
-  res_cc[[j]] = res_cc[[j]][ind_cc, ]
-}
-```
-
-
-```{r estimated_effect_sizes_compcase}
-for(j in 1:3){
-  writeLines(sprintf('Effects for %s', my_endpoints[j]))
-  print(signif(10^res_cc[[j]],2))
-}
-```
+# Case-only analysis
 
 ## Multiple imputation analysis
 
-Estimate effects using multiple imputation
+Estimate effects using multiple imputation - this is the main analysis underlying reported effects.
 
 ```{r effect_models}
 MIcombineP <- function(MIcombineRes,digits=3) {
@@ -292,6 +244,108 @@ for(j in 1:3){
   print(signif(10^res_imp[[j]],2))
 }
 ```
+
+
+## Complete case analysis
+
+```{r complete_case_analysis}
+res_cc = list()
+for(j in 1:3){
+  res_cc[[j]] = array(dim = c(length(gg_names),3))
+}
+for(cc in 1:length(gg_names)){
+  gg = gg_names[cc]
+  
+  writeLines(sprintf('******* Analysis for %s polymorphism', gg))
+  if(gg_models[cc]=='A'){
+    g_dat = kemri_case_data[,gg]
+  } 
+  if(gg_models[cc]=='H'){
+    g_dat = as.numeric(kemri_case_data[,gg]==2)
+  }
+  if(gg_models[cc]=='R'){
+    g_dat = as.numeric(kemri_case_data[,gg]==3)
+  }
+  
+  for(j in 1:3){
+    dat = data.frame(y = scale(kemri_case_data[,my_endpoints[j]]),
+                     g = g_dat,
+                     ethnic = kemri_case_data$ethnic)
+    mod = lm(y ~ g+ethnic,data = dat)
+    writeLines(sprintf('For %s model p=%s', 
+                       my_endpoints[j],
+                       summary(mod)$coefficients['g',4]))
+    res_cc[[j]][cc,1:3] = mod$coefficients['g'] + c(0,-1.96, 1.96)*summary(mod)$coefficients['g',2]
+  }
+}
+
+for(j in 1:3){ 
+  res_cc[[j]] = data.frame(res_cc[[j]])
+  colnames(res_cc[[j]]) = c('Estimate','upperCI','lowerCI')
+  rownames(res_cc[[j]]) = gg_labels
+  res_cc[[j]] = res_cc[[j]][ind_imp, ]
+}
+```
+
+
+```{r estimated_effect_sizes_compcase}
+for(j in 1:3){
+  writeLines(sprintf('Effects for %s', my_endpoints[j]))
+  print(signif(10^res_cc[[j]],2))
+}
+```
+
+Estimate effects with additional adjustment for:
+
+* age
+* bacteriaemia
+* haemoglobin
+
+```{r adjusted_effect_models}
+res_imp_covadj = list()
+for(j in 1:3){
+  res_imp_covadj[[j]] = array(dim = c(length(gg_names),3))
+}
+
+for(cc in 1:length(gg_names)){
+  gg = gg_names[cc]
+  
+  writeLines(sprintf('******* Analysis for %s polymorphism', gg))
+  if(gg_models[cc]=='A'){
+    g_dat = kemri_case_data[,gg]
+  } 
+  if(gg_models[cc]=='H'){
+    g_dat = as.numeric(kemri_case_data[,gg]==2)
+  }
+  if(gg_models[cc]=='R'){
+    g_dat = as.numeric(kemri_case_data[,gg]==3)
+  }
+  
+  for(j in 1:3){
+    for(i in 1:length(imp_dat_mod)){
+      imp_dat_mod[[i]]$g=g_dat
+      imp_dat_mod[[i]]$y=imp_dat_mod[[i]][,my_endpoints[j]]
+    }
+    imp_dat_obj = mitools::imputationList(lapply(imp_dat_mod, function(x) x))
+    mods = MIcombine(with(imp_dat_obj, lm(y ~ g+ethnic+agemths+bloodculture_pos+hb)))
+    
+    writeLines(sprintf('For %s model p=%s',
+                       my_endpoints[j],
+                       MIcombineP(mods)['g']))
+    
+    res_imp_covadj[[j]][cc,1:3] = mods$coefficients['g']+ 
+      c(0,-1.96, 1.96)*sqrt(mods$variance['g','g'])
+  }
+}
+
+for(j in 1:3){ 
+  res_imp_covadj[[j]] = data.frame(res_imp_covadj[[j]])
+  colnames(res_imp_covadj[[j]]) = c('Estimate','upperCI','lowerCI')
+  rownames(res_imp_covadj[[j]]) = gg_labels
+  res_imp_covadj[[j]] = res_imp_covadj[[j]][ind_imp, ]
+}
+```
+
 
 ## Figure 1 (main result)
 
@@ -400,24 +454,54 @@ axis(2, at = 1:length(gg_names), gg_labels[ind_imp])
 
 ## Comparison complete case vs imputation
 
-```{r comparison_cc_imp, fig.height=3, fig.width=9}
-par(mfrow=c(1,3),las=1, family='serif', cex.lab=1.3, cex.axis=1.3)
+```{r comparison_cc_imp, fig.height=6, fig.width=9}
+par(mfrow=c(2,3),las=1,
+    family='serif', cex.lab=1.3, cex.axis=1.3)
 my_titles = c('log parasite density',
               'log PfHRP2', 
               'log parasite/PfHRP2 ratio')
 for(j in 1:3){
-  xlims = range(res_cc[[j]])
+  xlims = range(c(range(res_cc[[j]]),range(res_imp_covadj[[j]])))
   ylims = range(res_imp[[j]])
   my_lims = range(c(xlims, ylims)) # square plot
   plot(res_cc[[j]]$Estimate, res_imp[[j]]$Estimate,
        xlim=my_lims, ylim=my_lims,main=my_titles[j],
-       panel.first=grid(), xlab='Fold change (complete case)',
-       ylab="Fold change (multiple imputation)")
+       panel.first=grid(), xaxt='n', yaxt='n',
+       xlab='Fold change (complete case)',
+       ylab="Fold change (MI)")
+  axis(1, at = log10(c(.1,.2,.5,1,2)), 
+     labels = c(.1,.2,.5,1,2))
+  axis(2, at = log10(c(.1,.2,.5,1,2)), 
+     labels = c(.1,.2,.5,1,2))
   lines(-10:10, -10:10)
   for(i in 1:length(gg_names)){
     lines(rep(res_cc[[j]]$Estimate[i], 2),
           c(res_imp[[j]]$lowerCI[i],res_imp[[j]]$upperCI[i]))
     lines(c(res_cc[[j]]$lowerCI[i],res_cc[[j]]$upperCI[i]),
+          rep(res_imp[[j]]$Estimate[i], 2))
+  }
+  abline(v=0, h=0, lty=2)
+}
+
+
+for(j in 1:3){
+  xlims = range(c(range(res_cc[[j]]),range(res_imp_covadj[[j]])))
+  ylims = range(res_imp[[j]])
+  my_lims = range(c(xlims, ylims)) # square plot
+  plot(res_imp_covadj[[j]]$Estimate, res_imp[[j]]$Estimate,
+       xlim=my_lims, ylim=my_lims,main=my_titles[j],
+       panel.first=grid(), xaxt='n', yaxt='n',
+       xlab='Fold change (MI, adjusted)',
+       ylab="Fold change (MI)")
+  axis(1, at = log10(c(.1,.2,.5,1,2)), 
+     labels = c(.1,.2,.5,1,2))
+  axis(2, at = log10(c(.1,.2,.5,1,2)), 
+     labels = c(.1,.2,.5,1,2))
+  lines(-10:10, -10:10)
+  for(i in 1:length(gg_names)){
+    lines(rep(res_imp_covadj[[j]]$Estimate[i], 2),
+          c(res_imp[[j]]$lowerCI[i],res_imp[[j]]$upperCI[i]))
+    lines(c(res_imp_covadj[[j]]$lowerCI[i],res_imp_covadj[[j]]$upperCI[i]),
           rep(res_imp[[j]]$Estimate[i], 2))
   }
   abline(v=0, h=0, lty=2)

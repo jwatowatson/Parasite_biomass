@@ -222,124 +222,11 @@ Best fitting models. We use single imputation to which is best fitting model
 ## [1] FALSE
 ```
 
-## Complete case analysis
-
-
-```
-## ******* Analysis for hbb_rs334_num polymorphism
-## For log_parasites model p=6.09835421288473e-07
-## For log_hrp2 model p=1.17530538078478e-10
-## For log_ratio model p=0.258587493066735
-## ******* Analysis for hba1_2 polymorphism
-## For log_parasites model p=0.696438471095131
-## For log_hrp2 model p=0.00031814351950014
-## For log_ratio model p=0.00629041532293178
-## ******* Analysis for frem3_rs186873296_num polymorphism
-## For log_parasites model p=0.202043752475078
-## For log_hrp2 model p=0.00483377488554595
-## For log_ratio model p=0.644738841251556
-## ******* Analysis for abo_rs8176719_num polymorphism
-## For log_parasites model p=0.0131268621605838
-## For log_hrp2 model p=7.94045743533939e-10
-## For log_ratio model p=0.00789680319739409
-## ******* Analysis for atp2b4_rs1541255_num polymorphism
-## For log_parasites model p=0.0365547665148183
-## For log_hrp2 model p=0.683465972091446
-## For log_ratio model p=0.0227050400637977
-## ******* Analysis for g6pd_202 polymorphism
-## For log_parasites model p=0.334060332605031
-## For log_hrp2 model p=0.392109058378897
-## For log_ratio model p=0.451036782038497
-## ******* Analysis for cd40lg_rs3092945_num polymorphism
-## For log_parasites model p=0.45162926332164
-## For log_hrp2 model p=0.0377943261243058
-## For log_ratio model p=0.699784481657525
-## ******* Analysis for rps6kl1_rs3742785_num polymorphism
-## For log_parasites model p=0.917793585975565
-## For log_hrp2 model p=0.316926457731408
-## For log_ratio model p=0.401623870106487
-## ******* Analysis for loc727982_rs1371478_num polymorphism
-## For log_parasites model p=0.901025995467101
-## For log_hrp2 model p=0.19524213647913
-## For log_ratio model p=0.105254839058619
-## ******* Analysis for arl14_rs75731597_num polymorphism
-## For log_parasites model p=0.176876774434853
-## For log_hrp2 model p=0.63689574957587
-## For log_ratio model p=0.529945911503966
-## ******* Analysis for lphn2_rs72933304_num polymorphism
-## For log_parasites model p=0.877354000311971
-## For log_hrp2 model p=0.926500884900159
-## For log_ratio model p=0.644006985186236
-## ******* Analysis for il10_rs1800890_num polymorphism
-## For log_parasites model p=0.35520570614171
-## For log_hrp2 model p=0.435214701782955
-## For log_ratio model p=0.157306526974136
-## ******* Analysis for cand1_rs10459266_num polymorphism
-## For log_parasites model p=0.0501273145701642
-## For log_hrp2 model p=0.231894440507826
-## For log_ratio model p=0.168956190888501
-## ******* Analysis for gnas_rs8386_num polymorphism
-## For log_parasites model p=0.152117866523227
-## For log_hrp2 model p=0.973668078126477
-## For log_ratio model p=0.110265714565
-```
-
-
-
-```
-## Effects for log_parasites
-##               Estimate upperCI lowerCI
-## CD40LG (H)        1.10    0.85    1.40
-## LOC727982 (A)     0.99    0.85    1.20
-## CAND1 (A)         1.20    1.00    1.40
-## RPS6KL1 (A)       0.99    0.85    1.20
-## IL10 (A)          1.10    0.92    1.30
-## ATP2B4 (A)        0.85    0.73    0.99
-## LPHN2 (A)         1.00    0.78    1.30
-## GNAS (A)          1.10    0.95    1.40
-## ARL14 (A)         0.85    0.67    1.10
-## G6PD (A)          0.93    0.81    1.10
-## FREM3 (A)         0.81    0.59    1.10
-## HBA1-2 (R)        0.94    0.70    1.30
-## ABO (R)           0.78    0.64    0.95
-## HBB (A)           0.31    0.20    0.49
-## Effects for log_hrp2
-##               Estimate upperCI lowerCI
-## CD40LG (H)        1.40    1.00    1.90
-## LOC727982 (A)     1.10    0.94    1.40
-## CAND1 (A)         1.10    0.92    1.40
-## RPS6KL1 (A)       1.10    0.91    1.30
-## IL10 (A)          1.10    0.89    1.30
-## ATP2B4 (A)        1.00    0.86    1.30
-## LPHN2 (A)         1.00    0.73    1.40
-## GNAS (A)          1.00    0.82    1.20
-## ARL14 (A)         0.93    0.70    1.20
-## G6PD (A)          0.93    0.78    1.10
-## FREM3 (A)         0.57    0.39    0.84
-## HBA1-2 (R)        0.52    0.36    0.74
-## ABO (R)           0.48    0.38    0.61
-## HBB (A)           0.18    0.10    0.30
-## Effects for log_ratio
-##               Estimate upperCI lowerCI
-## CD40LG (H)        1.10    0.78    1.40
-## LOC727982 (A)     1.20    0.97    1.40
-## CAND1 (A)         0.87    0.71    1.10
-## RPS6KL1 (A)       1.10    0.90    1.30
-## IL10 (A)          0.86    0.71    1.10
-## ATP2B4 (A)        1.20    1.00    1.50
-## LPHN2 (A)         1.10    0.78    1.50
-## GNAS (A)          0.85    0.69    1.00
-## ARL14 (A)         1.10    0.82    1.50
-## G6PD (A)          1.10    0.90    1.30
-## FREM3 (A)         0.91    0.62    1.30
-## HBA1-2 (R)        0.61    0.43    0.87
-## ABO (R)           0.73    0.58    0.92
-## HBB (A)           0.73    0.43    1.30
-```
+# Case-only analysis
 
 ## Multiple imputation analysis
 
-Estimate effects using multiple imputation
+Estimate effects using multiple imputation - this is the main analysis underlying reported effects.
 
 
 ```
@@ -454,6 +341,189 @@ Estimate effects using multiple imputation
 ## HBB (A)           0.93    0.59     1.5
 ```
 
+
+## Complete case analysis
+
+
+```
+## ******* Analysis for hbb_rs334_num polymorphism
+## For log_parasites model p=6.09835421288473e-07
+## For log_hrp2 model p=1.17530538078478e-10
+## For log_ratio model p=0.258587493066735
+## ******* Analysis for hba1_2 polymorphism
+## For log_parasites model p=0.696438471095131
+## For log_hrp2 model p=0.00031814351950014
+## For log_ratio model p=0.00629041532293178
+## ******* Analysis for frem3_rs186873296_num polymorphism
+## For log_parasites model p=0.202043752475078
+## For log_hrp2 model p=0.00483377488554595
+## For log_ratio model p=0.644738841251556
+## ******* Analysis for abo_rs8176719_num polymorphism
+## For log_parasites model p=0.0131268621605838
+## For log_hrp2 model p=7.94045743533939e-10
+## For log_ratio model p=0.00789680319739409
+## ******* Analysis for atp2b4_rs1541255_num polymorphism
+## For log_parasites model p=0.0365547665148183
+## For log_hrp2 model p=0.683465972091446
+## For log_ratio model p=0.0227050400637977
+## ******* Analysis for g6pd_202 polymorphism
+## For log_parasites model p=0.334060332605031
+## For log_hrp2 model p=0.392109058378897
+## For log_ratio model p=0.451036782038497
+## ******* Analysis for cd40lg_rs3092945_num polymorphism
+## For log_parasites model p=0.45162926332164
+## For log_hrp2 model p=0.0377943261243058
+## For log_ratio model p=0.699784481657525
+## ******* Analysis for rps6kl1_rs3742785_num polymorphism
+## For log_parasites model p=0.917793585975565
+## For log_hrp2 model p=0.316926457731408
+## For log_ratio model p=0.401623870106487
+## ******* Analysis for loc727982_rs1371478_num polymorphism
+## For log_parasites model p=0.901025995467101
+## For log_hrp2 model p=0.19524213647913
+## For log_ratio model p=0.105254839058619
+## ******* Analysis for arl14_rs75731597_num polymorphism
+## For log_parasites model p=0.176876774434853
+## For log_hrp2 model p=0.63689574957587
+## For log_ratio model p=0.529945911503966
+## ******* Analysis for lphn2_rs72933304_num polymorphism
+## For log_parasites model p=0.877354000311971
+## For log_hrp2 model p=0.926500884900159
+## For log_ratio model p=0.644006985186236
+## ******* Analysis for il10_rs1800890_num polymorphism
+## For log_parasites model p=0.35520570614171
+## For log_hrp2 model p=0.435214701782955
+## For log_ratio model p=0.157306526974136
+## ******* Analysis for cand1_rs10459266_num polymorphism
+## For log_parasites model p=0.0501273145701642
+## For log_hrp2 model p=0.231894440507826
+## For log_ratio model p=0.168956190888501
+## ******* Analysis for gnas_rs8386_num polymorphism
+## For log_parasites model p=0.152117866523227
+## For log_hrp2 model p=0.973668078126477
+## For log_ratio model p=0.110265714565
+```
+
+
+
+```
+## Effects for log_parasites
+##               Estimate upperCI lowerCI
+## CD40LG (H)        1.10    0.85    1.40
+## RPS6KL1 (A)       0.99    0.85    1.20
+## LOC727982 (A)     0.99    0.85    1.20
+## CAND1 (A)         1.20    1.00    1.40
+## GNAS (A)          1.10    0.95    1.40
+## ATP2B4 (A)        0.85    0.73    0.99
+## G6PD (A)          0.93    0.81    1.10
+## LPHN2 (A)         1.00    0.78    1.30
+## IL10 (A)          1.10    0.92    1.30
+## ARL14 (A)         0.85    0.67    1.10
+## HBA1-2 (R)        0.94    0.70    1.30
+## FREM3 (A)         0.81    0.59    1.10
+## ABO (R)           0.78    0.64    0.95
+## HBB (A)           0.31    0.20    0.49
+## Effects for log_hrp2
+##               Estimate upperCI lowerCI
+## CD40LG (H)        1.40    1.00    1.90
+## RPS6KL1 (A)       1.10    0.91    1.30
+## LOC727982 (A)     1.10    0.94    1.40
+## CAND1 (A)         1.10    0.92    1.40
+## GNAS (A)          1.00    0.82    1.20
+## ATP2B4 (A)        1.00    0.86    1.30
+## G6PD (A)          0.93    0.78    1.10
+## LPHN2 (A)         1.00    0.73    1.40
+## IL10 (A)          1.10    0.89    1.30
+## ARL14 (A)         0.93    0.70    1.20
+## HBA1-2 (R)        0.52    0.36    0.74
+## FREM3 (A)         0.57    0.39    0.84
+## ABO (R)           0.48    0.38    0.61
+## HBB (A)           0.18    0.10    0.30
+## Effects for log_ratio
+##               Estimate upperCI lowerCI
+## CD40LG (H)        1.10    0.78    1.40
+## RPS6KL1 (A)       1.10    0.90    1.30
+## LOC727982 (A)     1.20    0.97    1.40
+## CAND1 (A)         0.87    0.71    1.10
+## GNAS (A)          0.85    0.69    1.00
+## ATP2B4 (A)        1.20    1.00    1.50
+## G6PD (A)          1.10    0.90    1.30
+## LPHN2 (A)         1.10    0.78    1.50
+## IL10 (A)          0.86    0.71    1.10
+## ARL14 (A)         1.10    0.82    1.50
+## HBA1-2 (R)        0.61    0.43    0.87
+## FREM3 (A)         0.91    0.62    1.30
+## ABO (R)           0.73    0.58    0.92
+## HBB (A)           0.73    0.43    1.30
+```
+
+Estimate effects with additional adjustment for:
+
+* age
+* bacteriaemia
+* haemoglobin
+
+
+```
+## ******* Analysis for hbb_rs334_num polymorphism
+## For log_parasites model p=1.54e-06
+## For log_hrp2 model p=1.59e-17
+## For log_ratio model p=0.567
+## ******* Analysis for hba1_2 polymorphism
+## For log_parasites model p=0.807
+## For log_hrp2 model p=0.000731
+## For log_ratio model p=0.0404
+## ******* Analysis for frem3_rs186873296_num polymorphism
+## For log_parasites model p=0.252
+## For log_hrp2 model p=0.0034
+## For log_ratio model p=0.435
+## ******* Analysis for abo_rs8176719_num polymorphism
+## For log_parasites model p=0.00874
+## For log_hrp2 model p=4.05e-07
+## For log_ratio model p=0.513
+## ******* Analysis for atp2b4_rs1541255_num polymorphism
+## For log_parasites model p=0.0633
+## For log_hrp2 model p=0.345
+## For log_ratio model p=0.00891
+## ******* Analysis for g6pd_202 polymorphism
+## For log_parasites model p=0.288
+## For log_hrp2 model p=0.353
+## For log_ratio model p=0.62
+## ******* Analysis for cd40lg_rs3092945_num polymorphism
+## For log_parasites model p=0.523
+## For log_hrp2 model p=0.207
+## For log_ratio model p=0.857
+## ******* Analysis for rps6kl1_rs3742785_num polymorphism
+## For log_parasites model p=0.964
+## For log_hrp2 model p=0.864
+## For log_ratio model p=0.869
+## ******* Analysis for loc727982_rs1371478_num polymorphism
+## For log_parasites model p=0.884
+## For log_hrp2 model p=0.432
+## For log_ratio model p=0.49
+## ******* Analysis for arl14_rs75731597_num polymorphism
+## For log_parasites model p=0.186
+## For log_hrp2 model p=0.548
+## For log_ratio model p=0.319
+## ******* Analysis for lphn2_rs72933304_num polymorphism
+## For log_parasites model p=0.974
+## For log_hrp2 model p=0.845
+## For log_ratio model p=0.922
+## ******* Analysis for il10_rs1800890_num polymorphism
+## For log_parasites model p=0.413
+## For log_hrp2 model p=0.843
+## For log_ratio model p=0.316
+## ******* Analysis for cand1_rs10459266_num polymorphism
+## For log_parasites model p=0.0421
+## For log_hrp2 model p=0.544
+## For log_ratio model p=0.0815
+## ******* Analysis for gnas_rs8386_num polymorphism
+## For log_parasites model p=0.339
+## For log_hrp2 model p=0.952
+## For log_ratio model p=0.291
+```
+
+
 ## Figure 1 (main result)
 
 ![](PfHRP2_quantitative_trait_files/figure-html/fig1-1.png)<!-- -->
@@ -561,19 +631,19 @@ data tilting case-control
 
 ```
 ## Doing hbb_rs334_num
-## log10 weighted p-value is -31.0391174859841
+## log10 weighted p-value is -31.1034486453982
 ## log10 non-weighted p-value is -37.7818996998084
 ## Doing hba1_2
-## log10 weighted p-value is -5.5209341279592
+## log10 weighted p-value is -5.52427515957124
 ## log10 non-weighted p-value is -4.16336276635852
 ## Doing frem3_rs186873296_num
-## log10 weighted p-value is -12.1152289102768
+## log10 weighted p-value is -12.1216786211662
 ## log10 non-weighted p-value is -10.9532600611397
 ## Doing abo_rs8176719_num
-## log10 weighted p-value is -12.274769531361
+## log10 weighted p-value is -12.2858222070892
 ## log10 non-weighted p-value is -8.20013388974944
 ## Doing atp2b4_rs1541255_num
-## log10 weighted p-value is -1.23083613371041
+## log10 weighted p-value is -1.23423058744057
 ## log10 non-weighted p-value is -1.38527803603474
 ```
 

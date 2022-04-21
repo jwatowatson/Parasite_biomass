@@ -1,4 +1,4 @@
-load(file = '../../RData/kemri_SM_HRP2_genotypes.RData')
+load(file = '~/Dropbox/MORU/Severe malaria/RData/kemri_SM_HRP2_genotypes.RData')
 
 table(is.na(kemri_case_data$HRP2))
 table(is.na(kemri_case_data$parasite_gn))
@@ -60,9 +60,9 @@ if(RE_RUN_IMPUTATION){
 
   }
 
-  save(imputed_data, file = '../Imputed_Data_kemri.RData')
+  save(imputed_data, file = '~/Dropbox/MORU/Severe malaria/Parasite_biomass_HRP2/Imputed_Data_kemri.RData')
 } else {
-  load('../Imputed_Data_kemri.RData')
+  load('~/Dropbox/MORU/Severe malaria/Parasite_biomass_HRP2/Imputed_Data_kemri.RData')
 }
 
 gg_names_char = c('hbb_rs334',
@@ -98,7 +98,7 @@ length(gg_names)
 
 var_names = c('log_parasites', 'log_hrp2',
               'log_platelet','log_wbc',
-              'hb', 'ethnic')
+              'hb', 'bloodculture_pos', 'ethnic', 'agemths')
 kemri_case_data = kemri_case_data[, c(var_names, gg_names, gg_names_char)]
 kemri_case_data$ethnic = as.factor(kemri_case_data$ethnic)
 
