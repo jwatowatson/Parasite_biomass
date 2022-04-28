@@ -366,7 +366,7 @@ axis(1, at = 2:6,
                 expression(10^4),
                 expression(10^5),
                 expression(10^6)))
-mtext(text = 'A',side = 3,line = 2,adj = 0, cex=1.5)
+mtext(text = 'a',side = 3,line = 2,adj = 0, cex=1.5)
 
 hist(kemri_case_data$log_hrp2,main = '', 
      xlab = 'PfHRP2 (ng/mL)', breaks = 30,
@@ -379,7 +379,7 @@ axis(1, at = 1:5,
                 expression(10^4),
                 expression(10^5)))
 
-mtext(text = 'B',side = 3,line = 2,adj = 0, cex=1.5)
+mtext(text = 'b',side = 3,line = 2,adj = 0, cex=1.5)
 
 hist(kemri_case_data$log_ratio, main = '', 
      xlab = 'Ratio (ng/parasite)', breaks = 30,
@@ -390,7 +390,7 @@ axis(1, at = seq(-7, -1, by =2),
                 expression(10^-5),   
                 expression(10^-3),
                 expression(10^-1)))
-mtext(text = 'C',side = 3,line = 2,adj = 0, cex=1.5)
+mtext(text = 'c',side = 3,line = 2,adj = 0, cex=1.5)
 
 x_lims = range(sapply(res_imp, range))
 par(mar=c(5,9,4,2))
@@ -416,7 +416,7 @@ for(j in 1:3){
 legend('bottomleft', inset = 0.05, 
        col=mycols, pch = c(17,16,18), cex=1.3,
        legend = c('Parasite density','Plasma PfHRP2','PfHRP2/parasite ratio'))
-mtext(text = 'C',side = 3,line = 1,adj = 0, cex=1.5)
+mtext(text = 'c',side = 3,line = 1,adj = 0, cex=1.5)
 par(font.axis = 3)
 axis(2, at = 1:length(gg_names), gg_labels[ind_imp])
 ```
@@ -801,7 +801,7 @@ for(gg in gg_name_main){
 ```
 
 
-```{r fig4}
+```{r fig4, fig.width=7, fig.height=5}
 par(mar=c(5,9,4,2),las=1, family='serif', cex.lab=1.3, cex.axis=1.3)
 plot(effect_w[,1], 1:nrow(effect_w), pch = 16, 
      xlim = c(-2.7,0),
