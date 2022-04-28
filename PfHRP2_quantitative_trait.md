@@ -634,19 +634,19 @@ data tilting case-control
 
 ```
 ## Doing hbb_rs334_num
-## log10 weighted p-value is -31.1142956872226
+## log10 weighted p-value is -31.0993176513668
 ## log10 non-weighted p-value is -37.7818996998084
 ## Doing hba1_2
-## log10 weighted p-value is -5.52214752338459
+## log10 weighted p-value is -5.52284974937648
 ## log10 non-weighted p-value is -4.16336276635852
 ## Doing frem3_rs186873296_num
-## log10 weighted p-value is -12.1171449374101
+## log10 weighted p-value is -12.1177869391016
 ## log10 non-weighted p-value is -10.9532600611397
 ## Doing abo_rs8176719_num
-## log10 weighted p-value is -12.2627345042671
+## log10 weighted p-value is -12.2596384157908
 ## log10 non-weighted p-value is -8.20013388974944
 ## Doing atp2b4_rs1541255_num
-## log10 weighted p-value is -1.23499547379029
+## log10 weighted p-value is -1.23471658484667
 ## log10 non-weighted p-value is -1.38527803603474
 ```
 
