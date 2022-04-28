@@ -6,10 +6,10 @@ This is a genetic case-only association study which uses parasite biomass as mea
 
 The raw data are given in the files *kemri_case_data.csv* (cases) and *kemri_control_data.csv* (controls). All the analysis can be reproduced by running the RMarkdown file *PfHRP2_quantitative_trait.Rmd*. This uses the following R packges:
 
-* mitools (combine analyses on multiple imputation datasets)
-* rstan (extract posterior samples from previously run model)
-* mvtnorm (multivariate normal)
-* matrixStats (useful functions such as logsumexp)
+* *mitools* (combine analyses on multiple imputation datasets)
+* *rstan* (extract posterior samples from previously run model)
+* *mvtnorm* (multivariate normal)
+* *matrixStats* (useful functions such as logsumexp)
 
 
 
