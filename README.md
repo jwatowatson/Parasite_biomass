@@ -20,3 +20,6 @@ The main result compares the associations estimated in case-only analyses with t
 * ratio of PfHRP2/parasite density
 
 ![Figure 1](PfHRP2_quantitative_trait_files/figure-html/fig1-1.png)
+
+
+Any questions or if you spot any bugs please email me at jwatowatson at gmail dot com
