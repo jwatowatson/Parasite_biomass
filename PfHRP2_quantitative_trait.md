@@ -10,6 +10,55 @@ output:
 
 
 
+Computational setup:
+
+
+```
+##                _                           
+## platform       x86_64-apple-darwin17.0     
+## arch           x86_64                      
+## os             darwin17.0                  
+## system         x86_64, darwin17.0          
+## status                                     
+## major          4                           
+## minor          0.2                         
+## year           2020                        
+## month          06                          
+## day            22                          
+## svn rev        78730                       
+## language       R                           
+## version.string R version 4.0.2 (2020-06-22)
+## nickname       Taking Off Again
+```
+
+```
+## R version 4.0.2 (2020-06-22)
+## Platform: x86_64-apple-darwin17.0 (64-bit)
+## Running under: macOS  10.16
+## 
+## Matrix products: default
+## BLAS:   /Library/Frameworks/R.framework/Versions/4.0/Resources/lib/libRblas.dylib
+## LAPACK: /Library/Frameworks/R.framework/Versions/4.0/Resources/lib/libRlapack.dylib
+## 
+## locale:
+## [1] en_GB.UTF-8/en_GB.UTF-8/en_GB.UTF-8/C/en_GB.UTF-8/en_GB.UTF-8
+## 
+## attached base packages:
+## [1] stats     graphics  grDevices utils     datasets  methods   base     
+## 
+## other attached packages:
+## [1] missForest_1.4      itertools_0.1-3     iterators_1.0.13   
+## [4] foreach_1.5.1       randomForest_4.6-14 matrixStats_0.61.0 
+## [7] mvtnorm_1.1-2       mitools_2.4        
+## 
+## loaded via a namespace (and not attached):
+##  [1] knitr_1.34       magrittr_2.0.1   R6_2.5.1         rlang_0.4.11    
+##  [5] fastmap_1.1.0    stringr_1.4.0    tools_4.0.2      parallel_4.0.2  
+##  [9] xfun_0.26        DBI_1.1.1        jquerylib_0.1.4  htmltools_0.5.2 
+## [13] yaml_2.2.1       digest_0.6.27    sass_0.4.0       codetools_0.2-18
+## [17] evaluate_0.14    rmarkdown_2.11   stringi_1.7.4    compiler_4.0.2  
+## [21] bslib_0.3.0      jsonlite_1.7.2
+```
 
 ## Load data
 
@@ -626,7 +675,7 @@ Best fitting model for the main polymorphisms using complete data only
 ## Relationship with true severe malaria
 
 
-![](PfHRP2_quantitative_trait_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
+![](PfHRP2_quantitative_trait_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
 
 
 
@@ -634,19 +683,19 @@ data tilting case-control
 
 ```
 ## Doing hbb_rs334_num
-## log10 weighted p-value is -31.0993176513668
+## log10 weighted p-value is -31.0720556924602
 ## log10 non-weighted p-value is -37.7818996998084
 ## Doing hba1_2
-## log10 weighted p-value is -5.52284974937648
+## log10 weighted p-value is -5.52280567422723
 ## log10 non-weighted p-value is -4.16336276635852
 ## Doing frem3_rs186873296_num
-## log10 weighted p-value is -12.1177869391016
+## log10 weighted p-value is -12.1201999058317
 ## log10 non-weighted p-value is -10.9532600611397
 ## Doing abo_rs8176719_num
-## log10 weighted p-value is -12.2596384157908
+## log10 weighted p-value is -12.2818954946942
 ## log10 non-weighted p-value is -8.20013388974944
 ## Doing atp2b4_rs1541255_num
-## log10 weighted p-value is -1.23471658484667
+## log10 weighted p-value is -1.23467537837095
 ## log10 non-weighted p-value is -1.38527803603474
 ```
 
@@ -654,7 +703,7 @@ data tilting case-control
 ![](PfHRP2_quantitative_trait_files/figure-html/fig4-1.png)<!-- -->
 
 
-![](PfHRP2_quantitative_trait_files/figure-html/unnamed-chunk-7-1.png)<!-- -->
+![](PfHRP2_quantitative_trait_files/figure-html/unnamed-chunk-8-1.png)<!-- -->
 
 
 ## ATP2B4 and haemoglobin

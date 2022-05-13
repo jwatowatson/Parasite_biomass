@@ -12,12 +12,19 @@ output:
 knitr::opts_chunk$set(cache = TRUE, cache.comments = FALSE,
                       echo = F, include = TRUE, 
                       fig.width = 8, fig.height = 8,
-                      fig.pos = 'H',dev = 'png', dpi = 300)
+                      fig.pos = 'H',dev = c('png','postscript'), dpi = 300)
 library(mitools)
 library(mvtnorm)
 library(matrixStats)
+library(missForest)
 ```
 
+Computational setup:
+
+```{r}
+version
+sessionInfo()
+```
 
 ## Load data
 
@@ -353,13 +360,13 @@ for(j in 1:3){
 
 ```{r fig1}
 mycols = RColorBrewer::brewer.pal(n = 8, 'Set2')[c(1,3,7,8)]
-par(las=1, family='serif', cex.axis=1.3, cex.lab=1.3)
+par(las=1, cex.axis=1.3, cex.lab=1.3)
 layout(mat = matrix(data = c(1,4,4,2,4,4,3,4,4), nrow = 3, byrow = T))
 
-hist(kemri_case_data$log_parasites,main = '', 
+h1=hist(kemri_case_data$log_parasites,main = '', 
      xlab = 'Parasite density (per uL)',breaks = 35,
      ylab = 'Number of patients', xaxt='n', 
-     col = adjustcolor(mycols[1],.6), border = NA)
+     col = (mycols[1]), border = NA)
 axis(1, at = 2:6, 
      labels = c(expression(10^2),
                 expression(10^3),   
@@ -371,7 +378,7 @@ mtext(text = 'a',side = 3,line = 2,adj = 0, cex=1.5)
 hist(kemri_case_data$log_hrp2,main = '', 
      xlab = 'PfHRP2 (ng/mL)', breaks = 30,
      ylab = 'Number of patients', xaxt='n',
-     col = adjustcolor(mycols[2],.6), border = NA)
+     col = (mycols[2]), border = NA)
 axis(1, at = 1:5, 
      labels = c(10,
                 expression(10^2),
@@ -384,7 +391,7 @@ mtext(text = 'b',side = 3,line = 2,adj = 0, cex=1.5)
 hist(kemri_case_data$log_ratio, main = '', 
      xlab = 'Ratio (ng/parasite)', breaks = 30,
      ylab = 'Number of patients', xaxt='n',
-     col = adjustcolor(mycols[3],.6), border = NA)
+     col = (mycols[3]), border = NA)
 axis(1, at = seq(-7, -1, by =2), 
      labels = c(expression(10^-7),
                 expression(10^-5),   
@@ -416,7 +423,7 @@ for(j in 1:3){
 legend('bottomleft', inset = 0.05, 
        col=mycols, pch = c(17,16,18), cex=1.3,
        legend = c('Parasite density','Plasma PfHRP2','PfHRP2/parasite ratio'))
-mtext(text = 'c',side = 3,line = 1,adj = 0, cex=1.5)
+mtext(text = 'd',side = 3,line = 1,adj = 0, cex=1.5)
 par(font.axis = 3)
 axis(2, at = 1:length(gg_names), gg_labels[ind_imp])
 ```
@@ -424,7 +431,7 @@ axis(2, at = 1:length(gg_names), gg_labels[ind_imp])
 ## Figure 1 (complete case)
 
 ```{r Fig1_complete_case}
-par(las=1, family='serif', cex.axis=1.3,
+par(las=1,  cex.axis=1.3,
     cex.lab=1.3,mar=c(5,9,4,2))
 x_lims = range(sapply(res_cc, range))
 plot(NA, NA, 
@@ -456,7 +463,7 @@ axis(2, at = 1:length(gg_names), gg_labels[ind_imp])
 ## Figure 1 (covariate adjusted)
 
 ```{r Fig1_cov_adj}
-par(las=1, family='serif', cex.axis=1.3,
+par(las=1,  cex.axis=1.3,
     cex.lab=1.3,mar=c(5,9,4,2))
 x_lims = range(sapply(res_cc, range))
 plot(NA, NA, 
@@ -488,8 +495,7 @@ axis(2, at = 1:length(gg_names), gg_labels[ind_imp])
 ## Comparison complete case vs imputation
 
 ```{r comparison_cc_imp, fig.height=6, fig.width=9}
-par(mfrow=c(2,3),las=1,
-    family='serif', cex.lab=1.3, cex.axis=1.3)
+par(mfrow=c(2,3),las=1,cex.lab=1.3, cex.axis=1.3)
 my_titles = c('log parasite density',
               'log PfHRP2', 
               'log parasite/PfHRP2 ratio')
@@ -570,7 +576,7 @@ for(cc in 1:length(gg_name_main)){
 ### Red cell polymorphisms
 
 ```{r fig2, echo=F}
-par(mfrow = c(2,4), las=1, family='serif', cex.lab=1.3, cex.axis=1.2, bty='n')
+par(mfrow = c(2,4), las=1,  cex.lab=1.3, cex.axis=1.2, bty='n')
 xx=boxplot(log_parasites ~ hbb_rs334, kemri_case_data,
         ylab='Parasite density (per/ul)',yaxt='n',
         varwidth=T,xlab = expression(italic(HBB))); grid()
@@ -678,7 +684,7 @@ for(i in 1:3){
 
 
 ```{r fig3, fig.height=8, fig.width=10, echo=F}
-par(mfrow = c(1,3), las=1, family='serif', 
+par(mfrow = c(1,3), las=1, 
     cex.lab=1.5, cex.axis=1.5, bty='n')
 
 xx=boxplot(log_parasites ~ atp2b4_rs1541255, kemri_case_data,
@@ -802,7 +808,7 @@ for(gg in gg_name_main){
 
 
 ```{r fig4, fig.width=7, fig.height=5}
-par(mar=c(5,9,4,2),las=1, family='serif', cex.lab=1.3, cex.axis=1.3)
+par(mar=c(5,9,4,2),las=1, cex.lab=1.3, cex.axis=1.3)
 plot(effect_w[,1], 1:nrow(effect_w), pch = 16, 
      xlim = c(-2.7,0),
      xlab = 'Odds ratio',
@@ -850,7 +856,7 @@ abline(v=0, h=0, lty=2)
 
 
 ```{r atp2b4_hb}
-par(las=1, family='serif',cex.lab=1.3, cex.axis=1.3)
+par(las=1, cex.lab=1.3, cex.axis=1.3)
 xx=boxplot(hb ~ as.factor(atp2b4_rs1541255_num), kemri_case_data,
         ylab='Haemoglobin (g/dL)',
         varwidth=T,xlab = expression(italic(ATP2B4))); grid()
