@@ -421,7 +421,7 @@ for(j in 1:3){
 }
 
 legend('bottomleft', inset = 0.05, 
-       col=mycols, pch = c(17,16,18), cex=1.3,
+       col=mycols, pch = 16:18, cex=1.3,
        legend = c('Parasite density','Plasma PfHRP2','PfHRP2/parasite ratio'))
 mtext(text = 'd',side = 3,line = 1,adj = 0, cex=1.5)
 par(font.axis = 3)
